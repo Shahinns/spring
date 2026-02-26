@@ -41,6 +41,7 @@ public class ProductServiceImpl implements ProductService {
         productRepository.addProduct(product);
 
 
+        System.out.println("Deysiklik oldu");
 
 
     }
