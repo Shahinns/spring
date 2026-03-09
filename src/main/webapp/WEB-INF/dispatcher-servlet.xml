@@ -10,8 +10,9 @@ http://www.springframework.org/schema/context/spring-context-4.0.xsd
 http://www.springframework.org/schema/mvc
 http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
 
-    <mvc:annotation-driven enable-matrix-variables="true"/>
-    <mvc:resources location="/resources/" mapping="/resource/**"/>
+<!--    <mvc:annotation-driven enable-matrix-variables="true"/>-->
+    <mvc:resources location="/resources/" mapping="/resources/**" />
+    <mvc:resources location="/resources/" mapping="/resource/**" />
 
 
     <context:component-scan base-package="org.example" />
@@ -21,7 +22,7 @@ http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
     </bean>
 
     <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
-        <property name="basename" value="classpath:messages" />
+        <property name="basename" value="messages"/>
         <property name="defaultEncoding" value="UTF-8"/>
     </bean>
 
@@ -30,8 +31,68 @@ http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
         <property name="maxUploadSize" value="10240000"/>
     </bean>
 
+    <bean id="localeResolver"
+          class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+        <property name="defaultLocale" value="en"/>
+    </bean>
 
-<!--    <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/resources/**"/>
+            <bean class="org.example.interceptor.PerformanceMonitorInterceptor"/>
+        </mvc:interceptor>
+
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/resources/**"/>
+            <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+                <property name="paramName" value="language"/>
+            </bean>
+        </mvc:interceptor>
+
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/resources/**"/>
+            <bean class="org.example.interceptor.AuditingInterceptor"/>
+        </mvc:interceptor>
+
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/resources/**"/>
+            <bean class="org.example.interceptor.PromoCodeInterceptor">
+                <property name="promoCode" value="OFF3R"/>
+                <property name="errorRedirect" value="invalidPromoCode"/>
+                <property name="offerRedirect" value="products/all"/>
+            </bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+
+    <bean id="validator"
+          class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+        <property name="validationMessageSource" ref="messageSource"/>
+    </bean>
+
+
+
+    <bean id="productValidator" class="org.example.validator.ProductValidator">
+        <property name = "springValidators">
+            <set>
+                <ref bean = "unitsInStockValidator"/>
+            </set>
+        </property>
+    </bean>
+
+
+    <bean id="unitsInStockValidator" class="org.example.validator.UnitsInStockValidator"/>
+
+    <mvc:annotation-driven enable-matrix-variables="true" validator="validator"/>
+
+
+
+
+    <!--    <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">-->
 <!--        <property name="defaultViews">-->
 <!--            <list>-->
 <!--                <ref bean="jsonView"/>-->

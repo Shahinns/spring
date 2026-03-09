@@ -47,4 +47,8 @@ public class Customer {
         this.noOfOrdersMade = noOfOrdersMade;
     }
 
+
+    public Customer() {
+        super();
+    }
 }

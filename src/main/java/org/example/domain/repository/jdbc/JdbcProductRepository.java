@@ -1,9 +1,10 @@
-package org.example.domain.repository;
+package org.example.domain.repository.jdbc;
 
 import org.example.domain.Product;
 import org.example.domain.ProductRowMapper;
+import org.example.domain.repository.ProductRepository;
+import org.example.exception.ProductNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -29,7 +30,10 @@ public class JdbcProductRepository implements ProductRepository {
     public Product getProductById(String productID) {
         String sql = "SELECT * FROM products WHERE product_id = ?";
         List<Product> products = jdbcTemplate.query(sql, new ProductRowMapper(), productID);
-        return products.isEmpty() ? null : products.get(0);
+        if (products.isEmpty()) {
+            throw new ProductNotFoundException(productID);
+        }
+        return products.get(0);
     }
 
     @Override

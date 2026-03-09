@@ -1,8 +1,9 @@
-package org.example.service;
+package org.example.service.Impl;
 
 
 import org.example.domain.Product;
 import org.example.domain.repository.ProductRepository;
+import org.example.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

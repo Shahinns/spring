@@ -1,16 +1,31 @@
 package org.example.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.example.validator.ProductId;
 import org.springframework.web.multipart.MultipartFile;
 
 
-
+import javax.validation.constraints.*;
 import java.math.BigDecimal;
 
 public class Product {
+
+
+    @Pattern(regexp="P[0-9]+", message="Invalid product ID. It should start with P followed by number.")
+    @Pattern(regexp="P[0-9]+", message=" A product already\n" + "exists with this product id.")
+    @ProductId
     private String productId;
+
+
+    @Size(min=4, max=50, message="Invalid product name. It should be minimum 4 characters to maximum 50 characters long.")
     private String name;
+
+    @Min(value=0, message="Unit price is Invalid. It cannot have negative values.")
+    @Digits(integer=8, fraction=2, message="Unit price is Invalid. It can have maximum of 2 digit fraction and 8 digit integer.")
+    @NotNull(message="Unit price is Invalid. It cannot be empty.")
     private BigDecimal unit_price;
+
+
     private String description;
     private String manufacturer;
     private String category;

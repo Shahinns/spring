@@ -2,10 +2,13 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-
-1">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <link rel="stylesheet"
 href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<script src="<c:url value='/resources/js/controllers.js'/>"></script>
+
 <title>Products</title>
 </head>
 <body>
@@ -16,38 +19,46 @@ href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
 </div>
 </div>
 </section>
-<section class="container">
-<div class="row">
-<div class="col-md-5">
-<img src="<c:url value="/resource/images/${product.productId}.jpg">
-</c:url>" alt="image" style = "width:100%"/>
-</div>
-<h3>${product.name}</h3>
-<p>${product.description}</p>
-<p>
-<strong>Item Code : </strong><span class="label label-warning">${product.productId}</span>
-</p>
-<p>
-<strong>manufacturer</strong> : ${product.manufacturer}
-</p>
-<p>
-<strong>category</strong> : ${product.category}
-</p>
-<p>
-<strong>Available units in stock </strong> :
-${product.unitsInStock}
-</p>
-<h4>${product.unitPrice} USD</h4>
-<a href="<spring:url value="/products/all" />" class="btn btn-default">
-<span class="glyphicon-hand-left glyphicon"></span> back
-</a>
-<p>
-<a href="#" class="btn btn-warning btn-large"> <span
-class="glyphicon-shopping-cart glyphicon"></span> Order Now
-</a>
-</p>
-</div>
-</div>
+
+<section class="container" ng-app="cartApp">
+  <div class="row" ng-controller="cartCtrl">
+    <div class="col-md-5">
+      <img src="<c:url value="/resource/images/${product.productId}.jpg"/>"
+           alt="image" style="width:100%"/>
+    </div>
+
+    <h3>${product.name}</h3>
+    <p>${product.description}</p>
+    <p>
+      <strong>Item Code : </strong>
+      <span class="label label-warning">${product.productId}</span>
+    </p>
+    <p>
+      <strong>manufacturer</strong> : ${product.manufacturer}
+    </p>
+    <p>
+      <strong>category</strong> : ${product.category}
+    </p>
+    <p>
+      <strong>Available units in stock </strong> : ${product.unitsInStock}
+    </p>
+    <h4>${product.unitPrice} USD</h4>
+
+    <a href="<spring:url value="/products/all" />" class="btn btn-default">
+      <span class="glyphicon-hand-left glyphicon"></span> back
+    </a>
+
+    <p>
+      <a href="#" class="btn btn-warning btn-large"
+         ng-click="addToCart('${product.productId}')">
+        <span class="glyphicon-shopping-cart glyphicon"></span> Order Now
+      </a>
+      <a href="<spring:url value="/cart" />" class="btn btn-default">
+        <span class="glyphicon-hand-right glyphicon"></span> View Cart
+      </a>
+    </p>
+
+  </div>
 </section>
 </body>
 </html>

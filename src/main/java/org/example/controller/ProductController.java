@@ -3,7 +3,10 @@ package org.example.controller;
 
 import org.example.domain.Product;
 import org.example.exception.NoProductsFoundUnderCategoryException;
+import org.example.exception.ProductNotFoundException;
 import org.example.service.ProductService;
+import org.example.validator.ProductValidator;
+import org.example.validator.UnitsInStockValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,9 +15,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +27,13 @@ import java.util.Map;
 @Controller
 @RequestMapping("/products")
 public class ProductController {
+
+
+    @Autowired
+    private UnitsInStockValidator unitsInStockValidator;
+
+    @Autowired
+    private ProductValidator productValidator;
 
     @Autowired
     private ProductService productService;
@@ -33,8 +45,7 @@ public class ProductController {
     }
 
     @RequestMapping("/{category}")
-    public String getProductsByCategory(Model
-                                                model,@PathVariable("category") String category) {
+    public String getProductsByCategory(Model model,@PathVariable("category") String category) {
         List<Product> products =productService.getProductsByCategory(category);
         if (products == null || products.isEmpty()) {
             throw new NoProductsFoundUnderCategoryException();
@@ -71,9 +82,13 @@ public class ProductController {
         return "addProduct";
     }
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public String processAddNewProductForm(@ModelAttribute("newProduct") Product productToBeAdded,
-                                           BindingResult result , HttpServletRequest request) {
+    public String processAddNewProductForm(@ModelAttribute("newProduct")
+                                               @Valid Product productToBeAdded, BindingResult result,
+                                           HttpServletRequest request) {
 
+        if(result.hasErrors()) {
+            return "addProduct";
+        }
 
         String[] suppressedFields = result.getSuppressedFields();
         if (suppressedFields.length > 0) {
@@ -101,8 +116,32 @@ public class ProductController {
     @InitBinder
     public void initialiseBinder(WebDataBinder binder) {
         binder.setAllowedFields("productId","name","unitPrice","description",
-                "manufacturer","category","unitsInStock","productImage" , "condition");
+                "manufacturer","category","unitsInStock","productImage" , "condition" , "language");
+
+        binder.setValidator(unitsInStockValidator);
+
+        binder.setValidator(productValidator);
+
     }
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ModelAndView handleError(HttpServletRequest req, ProductNotFoundException exception) {
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("invalidProductId", exception.getProductId());
+        mav.addObject("exception", exception);
+        mav.addObject("url",req.getRequestURL()+"?"+req.getQueryString());
+        mav.setViewName("productNotFound");
+        return mav;
+    }
+
+
+    @RequestMapping("/invalidPromoCode")
+    public String invalidPromoCode() {
+        return "invalidPromoCode";
+    }
+
+
+
 
 
 }
